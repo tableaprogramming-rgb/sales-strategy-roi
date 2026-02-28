@@ -302,6 +302,102 @@
             margin: 10px 0;
         }
 
+        /* Quick Start Guide Slider */
+        .guide-section {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(212, 175, 55, 0.05));
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 25px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            display: block;
+            /* Shown by default */
+        }
+
+        .guide-step {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .guide-step.active {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .guide-icon {
+            font-size: 2.5rem;
+            background: var(--bg-card);
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 2px solid var(--accent-gold);
+            flex-shrink: 0;
+        }
+
+        .guide-text h4 {
+            color: var(--accent-gold);
+            margin-bottom: 5px;
+            font-family: var(--font-heading);
+        }
+
+        .guide-text p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .guide-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .guide-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border-color);
+            transition: background 0.3s;
+        }
+
+        .dot.active {
+            background: var(--accent-blue);
+            width: 20px;
+            border-radius: 4px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .guide-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: color 0.2s;
+        }
+
+        .guide-close:hover {
+            color: var(--accent-red);
+        }
+
         /* Utilities */
         .btn {
             background-color: var(--accent-blue);
@@ -502,6 +598,64 @@
             </div>
             <button class="btn" onclick="window.print()">Export Report</button>
         </header>
+
+        <!-- QUICK START GUIDE SLIDER -->
+        <div class="guide-section" id="quick-guide">
+            <span class="guide-close"
+                onclick="document.getElementById('quick-guide').style.display='none'">&times;</span>
+
+            <!-- Step 1 -->
+            <div class="guide-step active" data-step="1">
+                <div class="guide-icon">💰</div>
+                <div class="guide-text">
+                    <h4>Step 1: Simulate Commissions</h4>
+                    <p>Start in <strong>Tab 1</strong>. Adjust your plan, employee count, and quarterly targets. Compare
+                        Model E (Hybrid) vs others to see how it balances sales earnings with company costs.</p>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="guide-step" data-step="2">
+                <div class="guide-icon">📈</div>
+                <div class="guide-text">
+                    <h4>Step 2: Project Growth</h4>
+                    <p>Switch to <strong>Tab 2</strong> to forecast your 3-year revenue. Move sliders for new clients
+                        and monthly churn to see the long-term impact on your Annual Recurring Revenue (ARR).</p>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="guide-step" data-step="3">
+                <div class="guide-icon">🤝</div>
+                <div class="guide-text">
+                    <h4>Step 3: Analyze Investor ROI</h4>
+                    <p>Use <strong>Tab 3</strong> for the investment pitch. Enter the funding amount and burn rate to
+                        calculate the exact month of break-even and the final 12x+ ROI valuation exit.</p>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="guide-step" data-step="4">
+                <div class="guide-icon">🎯</div>
+                <div class="guide-text">
+                    <h4>Step 4: Finalize Strategy</h4>
+                    <p>Review the <strong>Dashboard</strong> for your high-level numbers. Once satisfied, hit
+                        <strong>Export Report</strong> to save a clean PDF version of your strategy and projections.</p>
+                </div>
+            </div>
+
+            <div class="guide-nav">
+                <button class="btn btn-small" id="prevStep" onclick="moveStep(-1)"
+                    style="opacity:0.5; cursor:not-allowed;" disabled>Previous</button>
+                <div class="guide-dots">
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <button class="btn btn-small" id="nextStep" onclick="moveStep(1)">Next Step</button>
+            </div>
+        </div>
 
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('tab-commission')">1. Commission Simulator</button>
@@ -1472,6 +1626,42 @@
             btn.classList.toggle('open');
             const body = btn.nextElementSibling;
             body.classList.toggle('open');
+        }
+
+        // Guide Slider Logic
+        let currentGuideStep = 1;
+        function moveStep(delta) {
+            const steps = document.querySelectorAll('.guide-step');
+            const dots = document.querySelectorAll('.dot');
+            const prevBtn = document.getElementById('prevStep');
+            const nextBtn = document.getElementById('nextStep');
+
+            steps[currentGuideStep - 1].classList.remove('active');
+            dots[currentGuideStep - 1].classList.remove('active');
+
+            currentGuideStep += delta;
+            if (currentGuideStep < 1) currentGuideStep = 1;
+            if (currentGuideStep > 4) currentGuideStep = 4;
+
+            steps[currentGuideStep - 1].classList.add('active');
+            dots[currentGuideStep - 1].classList.add('active');
+
+            // Button states
+            prevBtn.disabled = (currentGuideStep === 1);
+            prevBtn.style.opacity = (currentGuideStep === 1) ? "0.5" : "1";
+            prevBtn.style.cursor = (currentGuideStep === 1) ? "not-allowed" : "pointer";
+
+            nextBtn.innerText = (currentGuideStep === 4) ? "Got it!" : "Next Step";
+            if (currentGuideStep === 4 && delta === 1 && nextBtn.innerText === "Got it!") {
+                // Clicking Got it closes the guide (handled logic)
+            }
+
+            // Special case for "Got it"
+            if (currentGuideStep === 4) {
+                nextBtn.onclick = () => document.getElementById('quick-guide').style.display = 'none';
+            } else {
+                nextBtn.onclick = () => moveStep(1);
+            }
         }
 
     </script>
