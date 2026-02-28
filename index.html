@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kando Interactive Sales Strategy Calculator</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0a1628;
+            --bg-card: #132238;
+            --bg-card-hover: #1c2e47;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-blue-hover: #2563eb;
+            --accent-gold: #f59e0b;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --border-color: #2e435f;
+            --font-body: 'Inter', sans-serif;
+            --font-heading: 'Outfit', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 80px;
+            /* Space for summary bar */
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: var(--font-heading);
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            color: var(--accent-gold);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: var(--text-muted);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Layout Grid */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .controls-panel {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            position: sticky;
+            top: 20px;
+            align-self: start;
+        }
+
+        .results-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Cards */
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .card h3 {
+            margin-bottom: 15px;
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        /* Form Controls */
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent-blue);
+        }
+
+        .control-group select,
+        .control-group input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            background-color: var(--bg-base);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 4px;
+            font-family: var(--font-body);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th:first-child,
+        td:first-child {
+            text-align: left;
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .highlight-row {
+            background-color: rgba(59, 130, 246, 0.1);
+            font-weight: 600;
+        }
+
+        /* Charts Container */
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            margin-top: 10px;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Summary Bar */
+        .summary-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--bg-card);
+            border-top: 1px solid var(--border-color);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .summary-value {
+            font-size: 1.4rem;
+            font-family: var(--font-heading);
+            font-weight: 700;
+            color: var(--accent-gold);
+        }
+
+        /* Dashboard Grid */
+        .dash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .dash-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .dash-card .dash-val {
+            font-size: 2rem;
+            color: var(--accent-blue);
+            font-family: var(--font-heading);
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        /* Utilities */
+        .btn {
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: var(--font-heading);
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-blue-hover);
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .text-green {
+            color: var(--accent-green);
+        }
+
+        .text-red {
+            color: var(--accent-red);
+        }
+
+        .text-gold {
+            color: var(--accent-gold);
+        }
+
+        /* Formula Accordion */
+        .formula-accordion {
+            margin-top: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .formula-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            background-color: var(--bg-card);
+            cursor: pointer;
+            user-select: none;
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            color: var(--text-muted);
+            border: none;
+            width: 100%;
+            text-align: left;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .formula-toggle:hover {
+            background-color: var(--bg-card-hover);
+            color: var(--text-main);
+        }
+
+        .formula-toggle .chevron {
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+
+        .formula-toggle.open {
+            color: var(--accent-blue);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .formula-toggle.open .chevron {
+            transform: rotate(180deg);
+        }
+
+        .formula-body {
+            display: none;
+            padding: 20px;
+            background-color: var(--bg-card);
+            animation: fadeIn 0.2s ease;
+        }
+
+        .formula-body.open {
+            display: block;
+        }
+
+        .formula-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .formula-item {
+            background-color: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 14px 16px;
+        }
+
+        .formula-item .f-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-gold);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .formula-item .f-expr {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-blue);
+            background-color: rgba(59, 130, 246, 0.08);
+            border-radius: 4px;
+            padding: 6px 10px;
+            margin-bottom: 6px;
+            word-break: break-word;
+            line-height: 1.5;
+        }
+
+        .formula-item .f-note {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .formula-divider {
+            margin: 16px 0 8px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                color: black;
+                padding-bottom: 0;
+            }
+
+            .summary-bar {
+                position: static;
+                box-shadow: none;
+                border: 1px solid #ccc;
+                margin-top: 20px;
+            }
+
+            .controls-panel,
+            .tabs,
+            .btn {
+                display: none !important;
+            }
+
+            .tab-content {
+                display: block !important;
+                page-break-after: always;
+            }
+
+            .card {
+                border: 1px solid #ccc;
+                background: white;
+                margin-bottom: 20px;
+                break-inside: avoid;
+            }
+
+            th,
+            td {
+                border-bottom: 1px solid #eee;
+            }
+
+            :root {
+                --bg-base: white;
+                --bg-card: white;
+                --text-main: black;
+                --text-muted: #555;
+                --border-color: #ccc;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header class="flex-between">
+            <div>
+                <h1>Kando Sales Strategy & ROI</h1>
+                <p>Interactive calculator for commission models and revenue projections</p>
+            </div>
+            <button class="btn" onclick="window.print()">Export Report</button>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('tab-commission')">1. Commission Simulator</button>
+            <button class="tab-btn" onclick="switchTab('tab-revenue')">2. Revenue Projector</button>
+            <button class="tab-btn" onclick="switchTab('tab-investor')">3. Investor ROI</button>
+            <button class="tab-btn" onclick="switchTab('tab-dashboard')">4. Dashboard</button>
+        </div>
+
+        <!-- TAB 1: COMMISSION SIMULATOR -->
+        <div id="tab-commission" class="tab-content active">
+            <div class="grid-layout">
+                <div class="controls-panel">
+                    <h3 style="color:var(--accent-gold); margin-bottom: 15px;">Sales Assumptions</h3>
+
+                    <div class="control-group">
+                        <label>Plan Sold</label>
+                        <select id="c_planSold">
+                            <option value="Bundle" selected>Bundle (₱410)</option>
+                            <option value="doTime">do Time (₱290)</option>
+                            <option value="doPayroll">do Payroll (₱235)</option>
+                        </select>
+                    </div>
+                    <!-- Hidden price override, managed by select -->
+                    <input type="hidden" id="c_priceOverride" value="410">
+
+                    <div class="control-group">
+                        <label><span>Employees per Client</span> <span id="val_c_emp">50</span></label>
+                        <input type="range" id="c_emp" min="10" max="500" value="50" step="10">
+                    </div>
+
+                    <div class="control-group">
+                        <label><span>Accounts Closed (Quarterly)</span> <span id="val_c_acc">8</span></label>
+                        <input type="range" id="c_acc" min="1" max="30" value="8" step="1">
+                    </div>
+
+                    <div class="control-group">
+                        <label><span>Client Retention (Months)</span> <span id="val_c_ret">24</span></label>
+                        <input type="range" id="c_ret" min="6" max="60" value="24" step="6">
+                    </div>
+                </div>
+
+                <div class="results-panel">
+                    <div class="card">
+                        <h3>Commission Models Comparison</h3>
+                        <p style="color:var(--text-muted); margin-bottom: 15px;">Earnings represent one quarter's
+                            cohort, projected over the specified retention period.</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Model</th>
+                                    <th>Year 1 Earnings</th>
+                                    <th>Lifetime Earnings</th>
+                                    <th>Cost to Co. (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbl_commissions">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="card">
+                        <h3>Year 1 Earnings Comparison</h3>
+                        <div class="chart-container">
+                            <canvas id="chart-commissions"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORMULA ACCORDION: Commission Tab -->
+            <div class="formula-accordion">
+                <button class="formula-toggle" onclick="toggleFormula(this)">📐 Formula Reference — Commission Models
+                    <span class="chevron">▼</span></button>
+                <div class="formula-body">
+                    <div class="formula-grid">
+                        <div class="formula-item">
+                            <div class="f-title">Annual Revenue per Client</div>
+                            <div class="f-expr">Price × Employees × 12</div>
+                            <div class="f-note">e.g. ₱410 × 50 emp × 12 mo = ₱246,000/yr</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="f-title">Model A — Flat Rate (10%)</div>
+                            <div class="f-expr">Accounts × AnnualRev × 10%</div>
+                            <div class="f-note">One-time commission on Year 1 subscription only.</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="f-title">Model B — Tiered Volume</div>
+                            <div class="f-expr">Accts 1–3: ×8%<br>Accts 4–6: ×10%<br>Accts 7–10: ×12%<br>Accts 11+: ×15%
+                            </div>
+                            <div class="f-note">Each tier's accounts × that tier rate × AnnualRev, summed.</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="f-title">Model C — Product-Weighted</div>
+                            <div class="f-expr">Bundle: Accounts × AnnualRev × 12%<br>Others: Accounts × AnnualRev × 7%
+                            </div>
+                            <div class="f-note">Higher rate on Bundle drives upselling behavior.</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="f-title">Model D — Base + Residual</div>
+                            <div class="f-expr">Upfront = AnnualRev × Accounts × 5%<br>Residual = Price × Emp ×
+                                RetMonths × Accounts × 3%</div>
+                            <div class="f-note">Year 1 = Upfront + first 12 months residual. Lifetime includes full
+                                retention period.</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="f-title">Model E — Hybrid (Recommended ⭐)</div>
+                            <div class="f-expr">Accts 1–5: ×base (8%/10%)<br>Accts 6–10: ×(base+2%)<br>Accts 11+:
+                                ×(base+4%)<br>+ 2% residual after Month 12</div>
+                            <div class="f-note">Residual = Price × Emp × (RetentionMonths − 12) × 2% × Accounts.</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="f-title">Cost to Company (%)</div>
+                            <div class="f-expr">LifetimeEarnings ÷ TotalLifetimeRevenue × 100</div>
+                            <div class="f-note">Lower % = more margin retained. Target: 8–12% for sustainable SaaS.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: REVENUE PROJECTOR -->
+        <div id="tab-revenue" class="tab-content">
+            <div class="grid-layout">
+                <div class="controls-panel">
+                    <h3 style="color:var(--accent-gold); margin-bottom: 15px;">Projection Variables</h3>
+
+                    <div class="control-group">
+                        <label><span>Avg Employees per Client</span> <span id="val_r_emp">50</span></label>
+                        <input type="range" id="r_emp" min="10" max="500" value="50" step="10">
+                    </div>
+
+                    <div class="control-group">
+                        <label><span>Year 1 New Clients</span> <span id="val_r_y1">30</span></label>
+                        <input type="range" id="r_y1" min="5" max="100" value="30" step="5">
+                    </div>
+
+                    <div class="control-group">
+                        <label><span>Year 2 New Clients</span> <span id="val_r_y2">60</span></label>
+                        <input type="range" id="r_y2" min="10" max="200" value="60" step="5">
+                    </div>
+
+                    <div class="control-group">
+                        <label><span>Year 3 New Clients</span> <span id="val_r_y3">100</span></label>
+                        <input type="range" id="r_y3" min="20" max="500" value="100" step="10">
+                    </div>
+
+                    <div class="control-group">
+                        <label><span>Monthly Churn Rate (%)</span> <span id="val_r_churn">3%</span></label>
+                        <input type="range" id="r_churn" min="0" max="10" value="3" step="0.5">
+                    </div>
+
+                    <div class="control-group">
+                        <label><span>Bundle Mix (%)</span> <span id="val_r_mix">70%</span></label>
+                        <input type="range" id="r_mix" min="0" max="100" value="70" step="5">
+                    </div>
+
+                    <div class="control-group">
+                        <label>Commission Model Used</label>
+                        <select id="r_model">
+                            <option value="A">A. Flat 10%</option>
+                            <option value="B">B. Tiered</option>
+                            <option value="C">C. Product-Weighted</option>
+                            <option value="D">D. Base + Residual</option>
+                            <option value="E" selected>E. Hybrid ⭐</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label><span>Operating Cost Margin (%)</span> <span id="val_r_opCost">20%</span></label>
+                        <input type="range" id="r_opCost" min="5" max="40" value="20" step="1">
+                    </div>
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin-top: 8px;">ℹ️ Clients are ramped in
+                        evenly over each year, and monthly churn is applied continuously — this is more accurate than
+                        year-end snapshots.</p>
+                </div>
+
+                <div class="results-panel">
+                    <div class="card">
+                        <h3>3-Year Financial Projection</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Year 1</th>
+                                    <th>Year 2</th>
+                                    <th>Year 3</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbl_revenue">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="card">
+                        <h3>Revenue vs Profit Growth (Monthly ARR)</h3>
+                        <div class="chart-container">
+                            <canvas id="chart-revenue"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORMULA ACCORDION: Revenue Tab -->
+            <div class="formula-accordion">
+                <button class="formula-toggle" onclick="toggleFormula(this)">📐 Formula Reference — Revenue Projector
+                    <span class="chevron">▼</span></button>
+                <div class="formula-body">
+                    <div class="formula-grid">
+                        <div class="formula-item">
+                            <div class="f-title">Weighted Avg Price per Employee/Month</div>
+                            <div class="f-expr">(Bundle% × ₱410) + (doTime% × ₱290) + (doPayroll% × ₱235)</div>
+                            <div class="f-note">Remaining % after Bundle is split evenly between do Time and do Payroll.
+                            </div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="f-title">Monthly Revenue</div>
+                            <div class="f-expr">ActiveClients × AvgEmployees × WeightedPrice</div>
+                            <div class="f-note">Calculated every month across 36 months with continuous churn.</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="f-title">Client Ramp-Up (Monthly)</div>
+                            <div class="f-expr">NewClientsThisYear ÷ 12 (added per month)</div>
+                            <div class="f-note">Clients are onboarded evenly throughout the year, not all on Day 1.
+                            </div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="f-title">Churn Applied Monthly</div>
+                            <div class="f-expr">ActiveClients = ActiveClients × (1 − ChurnRate)</div>
+                            <div class="f-note">Applied before adding new clients each month. E.g. 3% monthly churn =
+                                ~31% annual attrition.</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="f-title">Annual Recurring Revenue (ARR)</div>
+                            <div class="f-expr">MonthlyRevenue (Month 12/24/36) × 12</div>
+                            <div class="f-note">Snapshot of the last month of each year, annualized.</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="f-title">Gross Profit</div>
+                            <div class="f-expr">GrossRevenue − CommissionCost − OperatingCost</div>
+                            <div class="f-note">Commission Rate ≈ 10–12% based on model. Operating Cost is set by slider
+                                (default 20%).</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="f-title">Net Margin</div>
+                            <div class="f-expr">GrossProfit ÷ GrossRevenue × 100%</div>
+                            <div class="f-note">Target: 65–75% for a healthy SaaS business at this stage.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: INVESTOR ROI -->
+        <div id="tab-investor" class="tab-content">
+            <div class="grid-layout">
+                <div class="controls-panel">
+                    <h3 style="color:var(--accent-gold); margin-bottom: 15px;">Investment Variables</h3>
+
+                    <div class="control-group">
+                        <label>Investment Amount (₱)</label>
+                        <input type="number" id="i_amount" value="2000000" step="100000">
+                    </div>
+
+                    <div class="control-group">
+                        <label><span>Equity Offered (%)</span> <span id="val_i_equity">12.5%</span></label>
+                        <input type="range" id="i_equity" min="5" max="30" value="12.5" step="0.5">
+                    </div>
+
+                    <div class="control-group">
+                        <label>Monthly Burn Rate (₱)</label>
+                        <input type="number" id="i_burn" value="350000" step="10000">
+                    </div>
+
+                    <div class="control-group">
+                        <label><span>Exit Valuation Multiple (x ARR)</span> <span id="val_i_mult">7x</span></label>
+                        <input type="range" id="i_mult" min="3" max="15" value="7" step="1">
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">
+                        Note: Gross Profit from Revenue tab affects payback speed.
+                    </p>
+                </div>
+
+                <div class="results-panel">
+                    <div class="dash-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="card" style="text-align: center;">
+                            <h3 style="border:none; margin:0; padding:0;">Break-Even Month</h3>
+                            <div id="out_i_breakeven" class="dash-val"
+                                style="font-size: 3rem; color: var(--accent-gold); font-weight: 700;">Month 30</div>
+                            <p style="color: var(--text-muted);">via profit sharing</p>
+                        </div>
+                        <div class="card" style="text-align: center;">
+                            <h3 style="border:none; margin:0; padding:0;">Year 3 Exit Value (Investor)</h3>
+                            <div id="out_i_exit" class="dash-val"
+                                style="font-size: 2.5rem; color: var(--accent-green); font-weight: 700;">₱35,000,000
+                            </div>
+                            <p id="out_i_roi" style="color: var(--text-muted);">17.5x ROI at 7x ARR Multiple</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Investor Cumulative Return vs Investment</h3>
+                        <div class="chart-container">
+                            <canvas id="chart-investor"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORMULA ACCORDION: Investor Tab -->
+            <div class="formula-accordion">
+                <button class="formula-toggle" onclick="toggleFormula(this)">📐 Formula Reference — Investor ROI <span
+                        class="chevron">▼</span></button>
+                <div class="formula-body">
+                    <div class="formula-grid">
+                        <div class="formula-item">
+                            <div class="f-title">Monthly Investor Share</div>
+                            <div class="f-expr">MonthlyGrossProfit × Equity%</div>
+                            <div class="f-note">Gross Profit = Revenue × (1 − Commission% − OpCost%). Investor receives
+                                their equity share of this each month.</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="f-title">Cumulative Investor Return</div>
+                            <div class="f-expr">Σ (MonthlyGrossProfit × Equity%) over 36 months</div>
+                            <div class="f-note">Running sum of monthly shares. Break-even is when this equals the
+                                Investment Amount.</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="f-title">Break-Even Month (Profit Share)</div>
+                            <div class="f-expr">First month where CumulativeReturn ≥ InvestmentAmount</div>
+                            <div class="f-note">This is the payback via operating profit share only. Exit valuation
+                                return happens separately at sale.</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="f-title">Cash Runway</div>
+                            <div class="f-expr">InvestmentAmount ÷ MonthlyBurnRate</div>
+                            <div class="f-note">Months the investment keeps the company running before revenue must
+                                cover all costs. E.g. ₱2M ÷ ₱350K = ~5.7 months.</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="f-title">Company Exit Valuation (Year 3)</div>
+                            <div class="f-expr">ARR (Month 36) × ExitMultiple (e.g. 7x)</div>
+                            <div class="f-note">SaaS companies typically valued at 5–10x ARR. Higher growth = higher
+                                multiple.</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="f-title">Investor Exit Value</div>
+                            <div class="f-expr">CompanyValuation × Equity%</div>
+                            <div class="f-note">What the investor's shares are worth at exit. ROI Multiple = ExitValue ÷
+                                InvestmentAmount.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: DASHBOARD -->
+        <div id="tab-dashboard" class="tab-content">
+            <h2 style="margin-bottom: 20px; color: var(--accent-gold);">Strategy Summary</h2>
+            <div class="dash-grid">
+                <div class="dash-card">
+                    <h3>Year 3 ARR</h3>
+                    <div class="dash-val" id="dash_arr">₱0</div>
+                    <p class="text-muted">Annual Recurring Revenue</p>
+                </div>
+                <div class="dash-card">
+                    <h3>Active Clients (Y3)</h3>
+                    <div class="dash-val" id="dash_clients">0</div>
+                    <p class="text-muted">Considering churn</p>
+                </div>
+                <div class="dash-card">
+                    <h3>Best Comm. Model</h3>
+                    <div class="dash-val" id="dash_model">Hybrid</div>
+                    <p class="text-muted">For retention & upselling</p>
+                </div>
+                <div class="dash-card">
+                    <h3>Average Net Margin</h3>
+                    <div class="dash-val" id="dash_margin">70%</div>
+                    <p class="text-muted">After commissions & ops</p>
+                </div>
+                <div class="dash-card">
+                    <h3>Investor Break-Even</h3>
+                    <div class="dash-val text-gold" id="dash_breakeven">M28</div>
+                    <p class="text-muted">Payback timeline</p>
+                </div>
+                <div class="dash-card">
+                    <h3>Y3 Valuation</h3>
+                    <div class="dash-val text-green" id="dash_val">₱0</div>
+                    <p id="dash_val_sub" class="text-muted">At 7x Multiple</p>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 20px;">
+                <h3>Key Takeaways</h3>
+                <ul style="padding-left: 20px; margin-top: 10px; color: var(--text-muted);">
+                    <li style="margin-bottom: 8px;"><strong>Hybrid Commission (Model E)</strong> is recommended as it
+                        aligns sales incentives with company goals (retention and upsells), while keeping effective
+                        commission costs around 10-12%.</li>
+                    <li style="margin-bottom: 8px;"><strong>Client Retention</strong> is the biggest lever for long-term
+                        growth. Even a 2% improvement in churn dramatically increases Year 3 ARR.</li>
+                    <li style="margin-bottom: 8px;">The <strong>Angel Investor</strong> proposal is highly attractive at
+                        12.5% equity, provided the team hits the target of 30 clients in Year 1.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- FORMULA ACCORDION: Dashboard -->
+        <div class="formula-accordion">
+            <button class="formula-toggle" onclick="toggleFormula(this)">📐 Formula Reference &mdash; All Key Metrics
+                <span class="chevron">▼</span></button>
+            <div class="formula-body">
+                <p class="formula-divider">Commission</p>
+                <div class="formula-grid">
+                    <div class="formula-item">
+                        <div class="f-title">LTV (Customer Lifetime Value)</div>
+                        <div class="f-expr">AvgMonthlyRevPerClient &divide; ChurnRate</div>
+                        <div class="f-note">e.g. &#x20B1;20,500 &divide; 3% = &#x20B1;683,333 LTV per client.</div>
+                    </div>
+                    <div class="formula-item">
+                        <div class="f-title">LTV:CAC Ratio</div>
+                        <div class="f-expr">LTV &divide; CAC (Customer Acquisition Cost)</div>
+                        <div class="f-note">Investors look for &gt;3:1. Target 10:1+ for top SaaS companies.</div>
+                    </div>
+                </div>
+                <p class="formula-divider">Revenue</p>
+                <div class="formula-grid">
+                    <div class="formula-item">
+                        <div class="f-title">Target Avg Deal Size</div>
+                        <div class="f-expr">WeightedPrice &times; AvgEmployees &times; 12</div>
+                        <div class="f-note">Shown in the bottom bar. Updates based on mix % and employee count in
+                            Revenue tab.</div>
+                    </div>
+                    <div class="formula-item">
+                        <div class="f-title">Net Revenue Retention (NRR)</div>
+                        <div class="f-expr">(Revenue from existing clients this period) &divide; (Revenue from same
+                            clients last period)</div>
+                        <div class="f-note">&gt;100% means upsells outpace churn. Best-in-class SaaS = 120%+.</div>
+                    </div>
+                </div>
+                <p class="formula-divider">Investor</p>
+                <div class="formula-grid">
+                    <div class="formula-item">
+                        <div class="f-title">CAC Payback Period</div>
+                        <div class="f-expr">CAC &divide; (AvgMonthlyRevPerClient &times; GrossMargin%)</div>
+                        <div class="f-note">Target: under 12 months for B2B SMB SaaS.</div>
+                    </div>
+                    <div class="formula-item">
+                        <div class="f-title">ROI Multiple (Exit)</div>
+                        <div class="f-expr">(ARR &times; ExitMultiple &times; Equity%) &divide; InvestmentAmount</div>
+                        <div class="f-note">At 7x ARR and 12.5% equity, target ROI multiple exceeds 12x by Year 3.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+    <!-- Persistent Summary Bar -->
+    <div class="summary-bar">
+        <div class="summary-item">
+            <div class="summary-label">Target Avg Deal Size</div>
+            <div class="summary-value" id="bar_deal">₱246,000</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Y3 Projected ARR</div>
+            <div class="summary-value text-green" id="bar_arr">₱41,000,000</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Y3 Est. Valuation</div>
+            <div class="summary-value text-gold" id="bar_val">₱287,000,000</div>
+        </div>
+    </div>
+
+    <script>
+        // --- UTILITIES ---
+        const formatCurrency = (num) => '₱' + Math.round(num).toLocaleString();
+        const parseCurrency = (str) => Number(str.replace(/[^0-9.-]+/g, ""));
+
+        // --- STATE & CONSTANTS ---
+        const PRICING = {
+            'Bundle': 410,
+            'doTime': 290,
+            'doPayroll': 235
+        };
+
+        let globalState = {
+            commissionData: [],
+            revenueData: {},
+            investorData: {}
+        };
+
+        // --- DOM BINDINGS ---
+        // Tab switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            // Trigger resize for charts to fix width issues if tab was hidden
+            window.dispatchEvent(new Event('resize'));
+        }
+
+        // Bind slider values to text spans
+        function bindSlider(sliderId, spanId, suffix = '') {
+            const slider = document.getElementById(sliderId);
+            const span = document.getElementById(spanId);
+            slider.addEventListener('input', () => {
+                span.innerText = slider.value + suffix;
+                calculateAll();
+            });
+        }
+
+        bindSlider('c_emp', 'val_c_emp');
+        bindSlider('c_acc', 'val_c_acc');
+        bindSlider('c_ret', 'val_c_ret');
+        bindSlider('r_emp', 'val_r_emp');
+        bindSlider('r_y1', 'val_r_y1');
+        bindSlider('r_y2', 'val_r_y2');
+        bindSlider('r_y3', 'val_r_y3');
+        bindSlider('r_churn', 'val_r_churn', '%');
+        bindSlider('r_mix', 'val_r_mix', '%');
+        bindSlider('r_opCost', 'val_r_opCost', '%');
+        bindSlider('i_equity', 'val_i_equity', '%');
+        bindSlider('i_mult', 'val_i_mult', 'x');
+
+        document.getElementById('c_planSold').addEventListener('change', (e) => {
+            document.getElementById('c_priceOverride').value = PRICING[e.target.value];
+            calculateAll();
+        });
+
+        ['i_amount', 'i_burn', 'r_model'].forEach(id => {
+            document.getElementById(id).addEventListener('change', calculateAll);
+            document.getElementById(id).addEventListener('input', calculateAll);
+        });
+
+        // --- CALCULATIONS ---
+
+        function calculateCommissions() {
+            const plan = document.getElementById('c_planSold').value;
+            const price = Number(document.getElementById('c_priceOverride').value);
+            const emp = Number(document.getElementById('c_emp').value);
+            const accounts = Number(document.getElementById('c_acc').value);
+            const retMonths = Number(document.getElementById('c_ret').value);
+
+            const arrPerClient = price * emp * 12;
+            const totalARR = arrPerClient * accounts;
+            const lifetimeRevenuePerClient = price * emp * retMonths;
+            const totalLifetimeRev = lifetimeRevenuePerClient * accounts;
+
+            let models = [];
+
+            // A. Flat 10%
+            const a_y1 = totalARR * 0.10;
+            models.push({ name: 'A. Flat 10%', y1: a_y1, life: a_y1 });
+
+            // B. Tiered (Quarterly: 1-3=8%, 4-6=10%, 7-10=12%, 11+=15%)
+            let b_y1 = 0;
+            let acctLeft = accounts;
+            if (acctLeft > 0) { const a = Math.min(acctLeft, 3); b_y1 += a * arrPerClient * 0.08; acctLeft -= a; }
+            if (acctLeft > 0) { const a = Math.min(acctLeft, 3); b_y1 += a * arrPerClient * 0.10; acctLeft -= a; }
+            if (acctLeft > 0) { const a = Math.min(acctLeft, 4); b_y1 += a * arrPerClient * 0.12; acctLeft -= a; }
+            if (acctLeft > 0) { b_y1 += acctLeft * arrPerClient * 0.15; }
+            models.push({ name: 'B. Tiered', y1: b_y1, life: b_y1 });
+
+            // C. Product-Weighted (Bundle=12%, others=7%)
+            const c_rate = plan === 'Bundle' ? 0.12 : 0.07;
+            const c_y1 = totalARR * c_rate;
+            models.push({ name: 'C. Product-Weighted', y1: c_y1, life: c_y1 });
+
+            // D. Base 5% + Residual 3%
+            const d_upfront = totalARR * 0.05;
+            const d_residualYear1 = (arrPerClient * 0.03); // Assuming full year 1 collected
+            const d_y1 = d_upfront + (d_residualYear1 * accounts);
+            const d_life = d_upfront + (accounts * (price * emp * retMonths * 0.03));
+            models.push({ name: 'D. Base + Residual', y1: d_y1, life: d_life });
+
+            // E. Hybrid (8%/10% base + volume accelerator + 2% residual after month 12)
+            const e_baseRate = plan === 'Bundle' ? 0.10 : 0.08;
+            let e_upfront = 0;
+            acctLeft = accounts;
+            // Accelerator kicks in AFTER 5 accounts: first 5 at base, next 5 at base+2%, 11+ at base+4%
+            if (acctLeft > 0) { const a = Math.min(acctLeft, 5); e_upfront += a * arrPerClient * e_baseRate; acctLeft -= a; }
+            if (acctLeft > 0) { const a = Math.min(acctLeft, 5); e_upfront += a * arrPerClient * (e_baseRate + 0.02); acctLeft -= a; }
+            if (acctLeft > 0) { e_upfront += acctLeft * arrPerClient * (e_baseRate + 0.04); }
+
+            const e_y1 = e_upfront;
+            const residualMonths = Math.max(0, retMonths - 12);
+            const e_residual = accounts * (price * emp * residualMonths * 0.02);
+            const e_life = e_upfront + e_residual;
+            models.push({ name: 'E. Hybrid ⭐', y1: e_y1, life: e_life });
+
+            globalState.commissionData = models.map(m => ({
+                ...m,
+                costPct: (m.life / totalLifetimeRev) * 100
+            }));
+
+            renderCommissionTable();
+            drawCommissionChart();
+        }
+
+        function calculateRevenue() {
+            const y1New = Number(document.getElementById('r_y1').value);
+            const y2New = Number(document.getElementById('r_y2').value);
+            const y3New = Number(document.getElementById('r_y3').value);
+            const churnRate = Number(document.getElementById('r_churn').value) / 100;
+            const bundleMix = Number(document.getElementById('r_mix').value) / 100;
+            const opCostPct = Number(document.getElementById('r_opCost').value) / 100;
+            const emp = Number(document.getElementById('r_emp').value); // Independent revenue tab employee count
+
+            const otherMix = (1 - bundleMix) / 2;
+            const avgPrice = (bundleMix * PRICING['Bundle']) + (otherMix * PRICING['doTime']) + (otherMix * PRICING['doPayroll']);
+
+            document.getElementById('bar_deal').innerText = formatCurrency(avgPrice * emp * 12);
+
+            let activeClients = 0;
+            let monthlyData = [];
+            let curYearNew = [y1New, y2New, y3New];
+
+            let totalGross = [0, 0, 0];
+            let eoyARR = [0, 0, 0];
+            let eoyClients = [0, 0, 0];
+
+            for (let m = 1; m <= 36; m++) {
+                let yearIdx = Math.floor((m - 1) / 12);
+                let addedThisMonth = curYearNew[yearIdx] / 12;
+
+                // apply churn
+                activeClients = activeClients * (1 - churnRate);
+                // add new
+                activeClients += addedThisMonth;
+
+                let mRev = activeClients * emp * avgPrice;
+                totalGross[yearIdx] += mRev;
+
+                if (m % 12 === 0) {
+                    eoyARR[yearIdx] = mRev * 12;
+                    eoyClients[yearIdx] = activeClients;
+                }
+
+                monthlyData.push({
+                    month: m,
+                    clients: activeClients,
+                    revenue: mRev
+                });
+            }
+
+            // Commission cost estimation simplified to ~10% for flat, ~12% for Hybrid/Product
+            const selModel = document.getElementById('r_model').value;
+            const commRate = selModel === 'A' ? 0.10 : (selModel === 'E' || selModel === 'C' ? 0.12 : 0.11);
+
+            let years = [];
+            for (let i = 0; i < 3; i++) {
+                let comm = totalGross[i] * commRate;
+                let ops = totalGross[i] * opCostPct;
+                years.push({
+                    newClients: curYearNew[i],
+                    retained: Math.round(eoyClients[i]),
+                    grossBase: totalGross[i],
+                    arr: eoyARR[i],
+                    comm: comm,
+                    ops: ops,
+                    profit: totalGross[i] - comm - ops
+                });
+            }
+
+            globalState.revenueData = { years, monthlyData, avgPrice, commRate, opCostPct };
+            renderRevenueTable();
+            drawRevenueChart();
+        }
+
+        function calculateInvestor() {
+            const invAmt = Number(document.getElementById('i_amount').value);
+            const equity = Number(document.getElementById('i_equity').value) / 100;
+            const burn = Number(document.getElementById('i_burn').value);
+            const exitMult = Number(document.getElementById('i_mult').value);
+
+            const revDataMulti = globalState.revenueData.monthlyData;
+            const opCostPct = globalState.revenueData.opCostPct;
+            const commRate = globalState.revenueData.commRate;
+
+            if (!revDataMulti) return;
+
+            let cumReturn = 0;
+            let breakEvenMonth = null;
+            let monthlyPlot = [];
+
+            // Runway: how many months does cash last?
+            let cashRemaining = invAmt;
+            let runwayMonths = 0;
+
+            for (let i = 0; i < 36; i++) {
+                let rev = revDataMulti[i].revenue;
+                // Gross operational profit (commission + ops already baked in from revenue calc)
+                let grossProfit = rev * (1 - commRate - opCostPct);
+                // Burn rate is a company operating expense — investor gets their equity % of gross profit
+                let invShare = grossProfit > 0 ? (grossProfit * equity) : 0;
+                // Track runway (investment covers early burn before revenue scales)
+                if (cashRemaining > 0) { cashRemaining -= burn; runwayMonths = i + 1; }
+                cumReturn += invShare;
+
+                if (cumReturn >= invAmt && breakEvenMonth === null) {
+                    breakEvenMonth = i + 1;
+                }
+
+                monthlyPlot.push(cumReturn);
+            }
+
+            let y3ARR = globalState.revenueData.years[2].arr;
+            let valuation = y3ARR * exitMult;
+            let invExit = valuation * equity;
+
+            document.getElementById('out_i_breakeven').innerText = breakEvenMonth ? `Month ${breakEvenMonth}` : 'Not in 3 Yrs';
+            document.getElementById('out_i_breakeven').style.color = breakEvenMonth ? 'var(--accent-gold)' : 'var(--accent-red)';
+
+            document.getElementById('out_i_exit').innerText = formatCurrency(invExit);
+            document.getElementById('out_i_roi').innerText = `${(invExit / invAmt).toFixed(1)}x ROI at ${exitMult}x ARR Multiple`;
+
+            globalState.investorData = { monthlyPlot, invAmt, breakEvenMonth, y3ARR, valuation };
+            drawInvestorChart();
+            updateDashboard();
+        }
+
+        // --- RENDERING ---
+
+        function renderCommissionTable() {
+            const tbody = document.getElementById('tbl_commissions');
+            tbody.innerHTML = '';
+
+            // Find max to highlight
+            const maxLife = Math.max(...globalState.commissionData.map(d => d.life));
+
+            globalState.commissionData.forEach(d => {
+                let tr = document.createElement('tr');
+                if (d.life === maxLife) tr.classList.add('highlight-row');
+
+                tr.innerHTML = `
+                <td>${d.name}</td>
+                <td>${formatCurrency(d.y1)}</td>
+                <td style="color:var(--accent-gold)">${formatCurrency(d.life)}</td>
+                <td>${d.costPct.toFixed(1)}%</td>
+            `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderRevenueTable() {
+            const tbody = document.getElementById('tbl_revenue');
+            tbody.innerHTML = '';
+            const y = globalState.revenueData.years;
+
+            const metrics = [
+                { label: 'New Clients', get: i => y[i].newClients, fmt: v => v },
+                { label: 'Active Clients (EOY)', get: i => y[i].retained, fmt: v => v },
+                { label: 'Annual Recur. Revenue (ARR)', get: i => y[i].arr, fmt: formatCurrency },
+                { label: 'Cumulative Gross Revenue', get: i => y[i].grossBase, fmt: formatCurrency },
+                { label: 'Commission Expense', get: i => y[i].comm, fmt: formatCurrency },
+                { label: 'Operating Cost', get: i => y[i].ops, fmt: formatCurrency },
+                { label: 'Gross Profit', get: i => y[i].profit, fmt: formatCurrency, highlight: true },
+                { label: 'Net Margin', get: i => (y[i].profit / y[i].grossBase * 100) || 0, fmt: v => v.toFixed(1) + '%' }
+            ];
+
+            metrics.forEach(m => {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `<td>${m.label}</td>`;
+                for (let i = 0; i < 3; i++) {
+                    let val = m.get(i);
+                    let text = m.fmt(val);
+                    tr.innerHTML += `<td ${m.highlight ? 'style="color:var(--accent-green);font-weight:bold;"' : ''}>${text}</td>`;
+                }
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateDashboard() {
+            const rData = globalState.revenueData;
+            const iData = globalState.investorData;
+
+            if (!rData.years) return;
+
+            const y3 = rData.years[2];
+            const margin = (y3.profit / y3.grossBase * 100).toFixed(1);
+
+            document.getElementById('dash_arr').innerText = formatCurrency(y3.arr);
+            document.getElementById('dash_clients').innerText = y3.retained;
+            document.getElementById('dash_margin').innerText = margin + '%';
+
+            document.getElementById('dash_breakeven').innerText = iData.breakEvenMonth ? `M${iData.breakEvenMonth}` : 'N/A';
+            document.getElementById('dash_val').innerText = formatCurrency(iData.valuation);
+            document.getElementById('dash_val_sub').innerText = `At ${document.getElementById('i_mult').value}x Multiple`;
+
+            document.getElementById('bar_arr').innerText = formatCurrency(y3.arr);
+            document.getElementById('bar_val').innerText = formatCurrency(iData.valuation);
+        }
+
+        // --- CANVAS CHARTS ---
+        function drawCommissionChart() {
+            const canvas = document.getElementById('chart-commissions');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const data = globalState.commissionData;
+            const maxVal = Math.max(...data.map(d => Math.max(d.y1, d.life)));
+
+            const pad = 40;
+            const barHeight = (canvas.height - (pad * 2)) / (data.length * 2);
+
+            ctx.font = '12px Inter';
+            ctx.fillStyle = '#94a3b8';
+
+            data.forEach((d, i) => {
+                let yBase = pad + (i * barHeight * 2);
+
+                // Label
+                ctx.fillStyle = '#e2e8f0';
+                ctx.textAlign = 'right';
+                ctx.fillText(d.name.split(' ')[0] + ' ' + d.name.split(' ')[1], 100, yBase + 15);
+
+                // Bar Y1
+                let widthY1 = (d.y1 / maxVal) * (canvas.width - 160);
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(110, yBase, widthY1, barHeight - 4);
+
+                // Bar Life - Behind Y1 or side by side. Let's do stacked/overlay
+                let widthLife = (d.life / maxVal) * (canvas.width - 160);
+                ctx.fillStyle = 'rgba(245, 158, 11, 0.6)'; // gold
+                ctx.fillRect(110, yBase + (barHeight / 2), widthLife, barHeight - 4);
+
+                // Value texts
+                ctx.fillStyle = '#e2e8f0';
+                ctx.textAlign = 'left';
+                ctx.fillText(formatCurrency(d.life), 115 + widthLife, yBase + barHeight);
+            });
+
+            // Legend
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillRect(canvas.width / 2 - 50, 10, 10, 10);
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillText('Year 1', canvas.width / 2 - 35, 20);
+
+            ctx.fillStyle = 'rgba(245, 158, 11, 0.6)';
+            ctx.fillRect(canvas.width / 2 + 30, 10, 10, 10);
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillText('Lifetime', canvas.width / 2 + 45, 20);
+        }
+
+        function drawRevenueChart() {
+            const canvas = document.getElementById('chart-revenue');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const d = globalState.revenueData.monthlyData;
+            if (!d) return;
+
+            const maxRev = Math.max(...d.map(m => m.revenue));
+            const padX = 60;
+            const padY = 30;
+            const w = canvas.width - padX - 20;
+            const h = canvas.height - padY - 20;
+
+            // Draw Axes
+            ctx.strokeStyle = '#2e435f';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padX, 20);
+            ctx.lineTo(padX, h + 20);
+            ctx.lineTo(padX + w, h + 20);
+            ctx.stroke();
+
+            // Line
+            ctx.beginPath();
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 3;
+            d.forEach((m, i) => {
+                let x = padX + (i / 35) * w;
+                let y = (h + 20) - ((m.revenue / maxRev) * h);
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            // Fill area
+            ctx.lineTo(padX + w, h + 20);
+            ctx.lineTo(padX, h + 20);
+            ctx.fillStyle = 'rgba(245, 158, 11, 0.1)';
+            ctx.fill();
+
+            // Labels
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '10px Inter';
+            ctx.textAlign = 'center';
+            for (let i = 0; i <= 36; i += 12) {
+                let x = padX + (i === 36 ? 35 : i) / 35 * w;
+                ctx.fillText('M' + i, x, h + 35);
+            }
+
+            ctx.textAlign = 'right';
+            ctx.fillText(formatCurrency(maxRev), padX - 5, 25);
+            ctx.fillText('₱0', padX - 5, h + 20);
+        }
+
+        function drawInvestorChart() {
+            const canvas = document.getElementById('chart-investor');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const d = globalState.investorData.monthlyPlot;
+            const invAmt = globalState.investorData.invAmt;
+            if (!d) return;
+
+            const maxVal = Math.max(invAmt * 1.5, Math.max(...d));
+            const padX = 60;
+            const padY = 30;
+            const w = canvas.width - padX - 20;
+            const h = canvas.height - padY - 20;
+
+            // axes
+            ctx.strokeStyle = '#2e435f';
+            ctx.beginPath(); ctx.moveTo(padX, 20); ctx.lineTo(padX, h + 20); ctx.lineTo(padX + w, h + 20); ctx.stroke();
+
+            // Target Line (Investment amount)
+            let targetY = (h + 20) - ((invAmt / maxVal) * h);
+            ctx.strokeStyle = '#ef4444';
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath(); ctx.moveTo(padX, targetY); ctx.lineTo(padX + w, targetY); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#ef4444'; ctx.textAlign = 'right'; ctx.fillText('Inv. Amt', padX - 5, targetY + 4);
+
+            // Curve
+            ctx.beginPath();
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 3;
+            d.forEach((v, i) => {
+                let x = padX + (i / 35) * w;
+                let y = (h + 20) - ((v / maxVal) * h);
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+        }
+
+        window.addEventListener('resize', () => {
+            if (document.getElementById('tab-commission').classList.contains('active')) drawCommissionChart();
+            if (document.getElementById('tab-revenue').classList.contains('active')) drawRevenueChart();
+            if (document.getElementById('tab-investor').classList.contains('active')) drawInvestorChart();
+        });
+
+        // INIT
+        function calculateAll() {
+            calculateCommissions();
+            calculateRevenue();
+            calculateInvestor(); // depends on revenue
+        }
+
+        window.onload = calculateAll;
+
+        // Formula accordion toggle
+        function toggleFormula(btn) {
+            btn.classList.toggle('open');
+            const body = btn.nextElementSibling;
+            body.classList.toggle('open');
+        }
+
+    </script>
+</body>
+
+</html>
